@@ -5,7 +5,7 @@
           android:compileSdkVersionCodename="16"
           android:requiredSplitTypes=""
           android:splitTypes=""
-          package="com.cxinventor.file.explorer"
+          
           platformBuildVersionCode="36"
           platformBuildVersionName="16" xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-sdk android:minSdkVersion="21"

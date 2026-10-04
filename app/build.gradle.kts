@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -8,10 +9,21 @@ android {
 
     defaultConfig {
         applicationId = "com.cxinventor.file.explorer"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 34
         versionCode = 278
         versionName = "2.7.8"
+
+        resourceConfigurations.add("en")
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     compileOptions {
@@ -20,25 +32,31 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    buildFeatures {
-        viewBinding = false
-        buildConfig = true
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    // AndroidX Core & UI
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.core:core:1.12.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.documentfile:documentfile:1.0.1")
-    implementation("androidx.work:work-runtime:2.9.0")
-    implementation("androidx.preference:preference:1.2.1")
-    implementation("com.google.android.material:material:1.11.0")
+    // --- Jetpack Compose & Material 3 ---
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
+    implementation(composeBom)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
-    // Shizuku Framework
+    // --- Core Framework & WorkManager ---
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.documentfile:documentfile:1.0.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // --- Shizuku Privilege Bridge ---
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
 }
