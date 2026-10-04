@@ -837,7 +837,7 @@
   <string name="permission_settings">Permission Settings</string>
   <string name="permission_write">Write</string>
   <string name="permit_usage_access">Permit usage access</string>
-  <string name="photo_view_count">%d of %d</string>
+  <string name="photo_view_count" formatted="false">%d of %d</string>
   <string name="photos_today">%d photos taken today</string>
   <string name="play_pause">play or pause</string>
   <string name="playback_pause_description">Pause</string>
@@ -1000,7 +1000,7 @@
   <string name="title_share">@string/menu_share</string>
   <string name="title_size">@string/dialog_entry_size</string>
   <string name="title_theme">Theme</string>
-  <string name="titles">%s, %s</string>
+  <string name="titles" formatted="false">%s, %s</string>
   <string name="to">To: %s</string>
   <string name="upgrade_to_premium">Upgrade to Premium</string>
   <string name="usb_storage_no_mount">Main storage is not mounted.</string>
