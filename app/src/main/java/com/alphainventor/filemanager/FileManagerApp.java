@@ -10,7 +10,6 @@ public class FileManagerApp extends Application implements Configuration.Provide
 
     public FileManagerApp() {
         super();
-        // Telemetry (ApplicationReporter) purged for privacy & FOSS compliance
     }
 
     public static void b(final String s) {

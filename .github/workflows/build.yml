@@ -26,4 +26,4 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
 
     - name: Run Build Test
-      run: ./gradlew assembleDebug --stacktrace
+      run: chmod +x gradlew && ./gradlew assembleDebug --stacktrace
