@@ -2,6 +2,7 @@ package com.alphainventor.filemanager.ui
 
 import android.os.Environment
 import android.os.StatFs
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,11 +10,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Article
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -136,7 +136,7 @@ fun DashboardScreen(
                             onClick = onOpenAnalyzer,
                             colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.25f)),
                             shape = RoundedCornerShape(4.dp),
-                            border = ButtonDefaults.outlinedButtonBorder.copy(brush = androidx.compose.ui.graphics.SolidColor(Color.White)),
+                            border = BorderStroke(1.dp, Color.White),
                             contentPadding = PaddingValues(horizontal = 28.dp, vertical = 6.dp)
                         ) {
                             Text("CLEAN", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
@@ -172,7 +172,7 @@ fun DashboardScreen(
                 ActionButton("Images", Icons.Rounded.Image, Color(0xFF7E57C2)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)) },
                 ActionButton("Audio", Icons.Rounded.MusicNote, Color(0xFF00897B)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)) },
                 ActionButton("Videos", Icons.Rounded.PlayCircle, Color(0xFFE53935)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)) },
-                ActionButton("Documents", Icons.Rounded.Article, Color(0xFF1E88E5)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)) },
+                ActionButton("Documents", Icons.AutoMirrored.Rounded.Article, Color(0xFF1E88E5)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)) },
                 ActionButton("New files", Icons.Rounded.AccessTime, Color(0xFF546E7A)) { /* New Files */ }
             )
 

@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
+import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,10 +50,10 @@ fun FileExplorerScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Toggle List/Grid */ }) {
-                        Icon(Icons.Rounded.ViewList, contentDescription = "View")
+                    IconButton(onClick = { /* Toggle View */ }) {
+                        Icon(Icons.AutoMirrored.Rounded.ViewList, contentDescription = "View")
                     }
-                    IconButton(onClick = { /* Menu */ }) {
+                    IconButton(onClick = { /* Options */ }) {
                         Icon(Icons.Rounded.MoreVert, contentDescription = "Options")
                     }
                 }
@@ -90,7 +92,7 @@ fun FileExplorerScreen(
                     },
                     leadingContent = {
                         Icon(
-                            imageVector = if (file.isDirectory) Icons.Rounded.Folder else Icons.Rounded.InsertDriveFile,
+                            imageVector = if (file.isDirectory) Icons.Rounded.Folder else Icons.AutoMirrored.Rounded.InsertDriveFile,
                             contentDescription = null,
                             tint = if (file.isDirectory) Color(0xFFFBC02D) else Color(0xFF90A4AE),
                             modifier = Modifier.size(38.dp)
