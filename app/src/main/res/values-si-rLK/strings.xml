@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8' ?>
-<resources>
-  <string name="failed">පින්තුරය පූරණය කළ නොහැකි විය</string>
-  <string name="photo_view_count">%d හි %d</string>
-  <string name="retry">නැවත උත්සාහ කරන්න</string>
-  <string name="titles">%s,%s</string>
-</resources>
