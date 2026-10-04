@@ -108,7 +108,7 @@
                android:value="2.4" />
     <meta-data android:name="firebase_analytics_collection_enabled"
                android:value="false" />
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/app_name"
               android:name="com.alphainventor.filemanager.activity.MainActivity"
               android:exported="true"
@@ -127,15 +127,15 @@
         <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/open_source_licenses"
               android:name="com.alphainventor.filemanager.oss.OssLicenseActivity" />
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:name="com.alphainventor.filemanager.activity.WebViewActivity"
               android:exported="false"
               android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
               android:resizeableActivity="true" />
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/location_archive_viewer"
               android:name="com.alphainventor.filemanager.activity.ArchiveActivity"
               android:exported="true"
@@ -153,7 +153,7 @@
         <data android:mimeType="application/java-archive" />
       </intent-filter>
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/text_editor"
               android:name="com.alphainventor.filemanager.texteditor.TextEditorActivity"
               android:exported="true"
@@ -208,7 +208,7 @@
         <data android:mimeType="video/x-matroska" />
       </intent-filter>
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:name="com.alphainventor.filemanager.activity.SettingsActivity"
               android:exported="false"
               android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
@@ -218,7 +218,7 @@
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:name="com.alphainventor.filemanager.activity.DevSettingsActivity" />
     <activity android:theme="@style/TransparentTheme"
               android:label="@string/file_launcher"
@@ -291,7 +291,7 @@
       <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                  android:resource="@xml/device_filter" />
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/app_name"
               android:name="com.alphainventor.filemanager.activity.PickerActivity"
               android:exported="true">
@@ -344,15 +344,15 @@
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:name="com.alphainventor.filemanager.activity.FileProgressActivity"
               android:launchMode="singleTask"
               android:enableOnBackInvokedCallback="@bool/enable_on_back_invoked_sdk_35" />
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/image_viewer"
               android:name="com.alphainventor.filemanager.viewer.ImageViewer"
               android:exported="false" />
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/music_player"
               android:name="com.alphainventor.filemanager.viewer.MusicPlayer"
               android:exported="false" />
@@ -440,7 +440,7 @@
       <meta-data android:name="android.support.PARENT_ACTIVITY"
                  android:value=".activity.MainActivity" />
     </activity>
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/settings_default_apps"
               android:name="com.alphainventor.filemanager.activity.DefaultsSettingsActivity"
               android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode" />
@@ -450,7 +450,7 @@
               android:process=":restart"
               android:excludeFromRecents="true"
               android:noHistory="true" />
-    <activity android:theme="@style/filemanager.AppTheme"
+    <activity android:theme="@android:style/Theme.Material.NoActionBar"
               android:label="@string/title_premium"
               android:name="com.alphainventor.filemanager.activity.PaymentActivity"
               android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
