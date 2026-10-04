@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<vector android:tint="@color/shape_usb"
+        android:height="96.0dp"
+        android:width="96.0dp"
+        android:viewportWidth="44.0"
+        android:viewportHeight="44.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <group android:translateX="4.0"
+         android:translateY="4.0">
+    <path android:fillColor="#ffffff"
+          android:pathData="M20.92,13.66v3.77h0.94v1.89h-2.83v-7.55h1.89L18.09,8l-2.83,3.77h1.89v7.55h-2.83v-1.95c0.66,-0.35 1.13,-1.02 1.13,-1.82c0,-1.14 -0.93,-2.08 -2.08,-2.08s-2.08,0.94 -2.08,2.08c0,0.8 0.47,1.47 1.13,1.82v1.95c0,1.05 0.84,1.89 1.89,1.89h2.83v2.88c-0.67,0.35 -1.13,1.04 -1.13,1.84c0,1.15 0.94,2.08 2.08,2.08s2.08,-0.92 2.08,-2.08c0,-0.8 -0.46,-1.49 -1.13,-1.84v-2.88h2.83c1.05,0 1.89,-0.84 1.89,-1.89v-1.89h0.94V13.66H20.92z" />
+  </group>
+</vector>

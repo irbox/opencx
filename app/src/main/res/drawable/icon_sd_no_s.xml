@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<vector android:tint="@color/shape_sdcard"
+        android:height="48.0dp"
+        android:width="48.0dp"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <path android:fillColor="#ffffff"
+        android:pathData="M16.392,8H16V4h2v2.363l2-2.035V4c0-1.1-0.9-2-2-2h-8L4.02,8L4,20c0,0.185,0.033,0.359,0.081,0.529L16.392,8  z M13,4h2v4h-2V4z M10,4h2v4h-2V4z M20,5.752V20c0,1.1-0.9,2-2,2H6c-0.542,0-1.034-0.22-1.396-0.573L17.792,8H18V7.789L20,5.752z" />
+</vector>

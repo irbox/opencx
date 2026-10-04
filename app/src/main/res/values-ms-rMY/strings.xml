@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<resources>
+  <string name="failed">Tidak dapat memuatkan imej</string>
+  <string name="photo_view_count">%d daripada %d</string>
+  <string name="retry">Cuba semula</string>
+  <string name="titles">%s, %s</string>
+</resources>

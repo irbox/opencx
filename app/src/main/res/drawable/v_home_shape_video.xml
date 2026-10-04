@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<vector android:tint="@color/shape_video"
+        android:height="96.0dp"
+        android:width="96.0dp"
+        android:viewportWidth="44.0"
+        android:viewportHeight="44.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <group android:translateX="4.0"
+         android:translateY="4.0">
+    <path android:fillColor="#ffffff"
+          android:pathData="M18,8C12.48,8 8,12.48 8,18c0,5.52 4.48,10 10,10c5.52,0 10,-4.48 10,-10C28,12.48 23.52,8 18,8zM16,22.5v-9l6,4.5L16,22.5z" />
+  </group>
+</vector>

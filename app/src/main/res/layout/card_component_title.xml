@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<androidx.constraintlayout.widget.ConstraintLayout android:orientation="horizontal"
+                      android:paddingLeft="4.0dp"
+                      android:paddingTop="6.0dp"
+                      android:paddingRight="4.0dp"
+                      android:paddingBottom="6.0dp"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:explorer="http://schemas.android.com/apk/res-auto">
+  <TextView android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/main_primary_text"
+            android:ellipsize="end"
+            android:id="@id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            explorer:layout_constrainedWidth="true"
+            explorer:layout_constraintEnd_toStartOf="@id/size_info"
+            explorer:layout_constraintHorizontal_bias="0.0"
+            explorer:layout_constraintHorizontal_chainStyle="packed"
+            explorer:layout_constraintStart_toStartOf="parent"
+            explorer:layout_constraintTop_toTopOf="parent" />
+  <TextView android:textSize="18.0sp"
+            android:textColor="?attr/colorAccent"
+            android:ellipsize="end"
+            android:id="@id/size_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8.0dp"
+            android:singleLine="true"
+            explorer:layout_constraintBaseline_toBaselineOf="@id/title"
+            explorer:layout_constraintEnd_toEndOf="parent"
+            explorer:layout_constraintStart_toEndOf="@id/title" />
+</androidx.constraintlayout.widget.ConstraintLayout>

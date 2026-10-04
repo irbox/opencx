@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<androidx.cardview.widget.CardView android:layout_gravity="center"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_marginLeft="8.0dp"
+                      android:layout_marginTop="8.0dp"
+                      android:layout_marginRight="8.0dp"
+                      explorer:cardBackgroundColor="@color/cardview_background"
+                      explorer:cardCornerRadius="2.0dp"
+                      explorer:contentPadding="4.0dp" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:explorer="http://schemas.android.com/apk/res-auto">
+  <ProgressBar android:layout_gravity="center"
+               android:id="@id/ads_progress"
+               android:padding="25.0dp"
+               android:visibility="gone"
+               android:layout_width="80.0dp"
+               android:layout_height="80.0dp"
+               android:indeterminate="true"
+               style="@style/Widget.AppCompat.ProgressBar" />
+</androidx.cardview.widget.CardView>

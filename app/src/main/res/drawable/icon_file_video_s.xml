@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<vector android:height="48.0dp"
+        android:width="48.0dp"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <path android:fillColor="@color/shape_video"
+        android:pathData="M22,19c0,1.657-1.343,3-3,3H5 c-1.657,0-3-1.343-3-3V5c0-1.657,1.343-3,3-3h14c1.657,0,3,1.343,3,3V19z" />
+  <path android:fillColor="@color/shape_invert"
+        android:pathData="M16,12l-6,4.5v-9L16,12z" />
+</vector>
