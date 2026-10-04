@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8' ?>
-<resources>
-  <color name="control_highlight">@color/ripple_vivid_dark</color>
-  <color name="transfer_item_background">#ff1976d2</color>
-  <color name="vivid_messsage_text_color">#66b2ff</color>
-  <color name="window_background">@color/background_material_dark</color>
-</resources>

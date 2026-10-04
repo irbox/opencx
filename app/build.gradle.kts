@@ -14,8 +14,10 @@ android {
         targetSdk = 35
         versionCode = 278
         versionName = "2.7.8"
+    }
 
-        resourceConfigurations.add("en")
+    androidResources {
+        localeFilters += "en"
     }
 
     buildFeatures {
