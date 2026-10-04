@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<vector android:tint="@color/shape_recyclebin"
+        android:height="96.0dp"
+        android:width="96.0dp"
+        android:viewportWidth="44.0"
+        android:viewportHeight="44.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <group android:translateX="4.0"
+         android:translateY="4.0">
+    <path android:fillColor="#ffffff"
+          android:pathData="M11.33,25.78C11.33,27 12.33,28 13.56,28h8.89c1.22,0 2.22,-1 2.22,-2.22V12.44H11.33V25.78zM25.78,9.11h-3.89L20.78,8h-5.55l-1.11,1.11h-3.89v2.22h15.56V9.11z" />
+  </group>
+</vector>

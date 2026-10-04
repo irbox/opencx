@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<resources>
+  <string name="failed">Зургийг ачааллаж чадсангүй</string>
+  <string name="photo_view_count">%d-н %d</string>
+  <string name="retry">Дахих</string>
+  <string name="titles">%s, %s</string>
+</resources>
