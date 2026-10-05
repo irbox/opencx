@@ -1,0 +1,479 @@
+package com.alphainventor.filemanager.local;
+
+import android.content.Context;
+import android.os.StatFs;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.alphainventor.filemanager.contract.AuthenticationInfo;
+import com.alphainventor.filemanager.contract.FileFilter;
+import com.alphainventor.filemanager.contract.FileInfo;
+import com.alphainventor.filemanager.contract.FileSystem;
+import com.alphainventor.filemanager.contract.FileSystemOperation;
+import com.alphainventor.filemanager.contract.FileSystemType;
+import com.alphainventor.filemanager.contract.ProgressListener;
+import com.alphainventor.filemanager.contract.StorageQuota;
+import com.alphainventor.filemanager.contract.exception.FileSystemException;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+/**
+ * Local Android filesystem implementation.
+ *
+ * <p>This class provides a protocol-agnostic implementation for device storage. It is the
+ * default filesystem used for local files, app-specific storage, shared storage, and external
+ * SD storage available through the Android filesystem.</p>
+ */
+public class LocalFileSystem implements FileSystem {
+
+    private final Context appContext;
+    private final String rootPath;
+    private final String locationId;
+    private final String displayName;
+    private boolean connected = true;
+
+    public LocalFileSystem(@NonNull Context context) {
+        this(context, "/", "local", "Local Storage");
+    }
+
+    public LocalFileSystem(@NonNull Context context,
+                          @NonNull String rootPath,
+                          @NonNull String locationId,
+                          @NonNull String displayName) {
+        this.appContext = context.getApplicationContext();
+        this.rootPath = normalizePath(rootPath);
+        this.locationId = locationId;
+        this.displayName = displayName;
+    }
+
+    @Override
+    @NonNull
+    public String getLocationId() {
+        return locationId;
+    }
+
+    @Override
+    @NonNull
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    @Override
+    @NonNull
+    public FileSystemType getType() {
+        return FileSystemType.LOCAL;
+    }
+
+    @Override
+    @NonNull
+    public Context getContext() {
+        return appContext;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return connected;
+    }
+
+    @Override
+    @NonNull
+    public String getRootPath() {
+        return rootPath;
+    }
+
+    @Override
+    @NonNull
+    public FileInfo getFileInfo(@NonNull String path) throws FileSystemException {
+        File file = new File(normalizePath(path));
+        if (!file.exists()) {
+            throw new FileSystemException("File not found: " + path, null,
+                    FileSystemException.ErrorCode.NOT_FOUND, path, locationId);
+        }
+        return new LocalFileInfo(this, file);
+    }
+
+    @Override
+    @NonNull
+    public List<FileInfo> listDirectory(@NonNull String directoryPath) throws FileSystemException {
+        return listDirectory(directoryPath, null, 0);
+    }
+
+    @Override
+    @NonNull
+    public List<FileInfo> listDirectory(@NonNull String directoryPath,
+                                       @Nullable FileFilter filter,
+                                       int sortMode) throws FileSystemException {
+        File dir = new File(normalizePath(directoryPath));
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new FileSystemException("Directory not found: " + directoryPath, null,
+                    FileSystemException.ErrorCode.NOT_A_DIRECTORY, directoryPath, locationId);
+        }
+
+        File[] files = dir.listFiles();
+        if (files == null) {
+            throw new FileSystemException("Unable to list directory: " + directoryPath, null,
+                    FileSystemException.ErrorCode.PERMISSION_DENIED, directoryPath, locationId);
+        }
+
+        List<FileInfo> result = new ArrayList<>();
+        for (File child : files) {
+            LocalFileInfo item = new LocalFileInfo(this, child);
+            if (filter == null || filter.accept(item)) {
+                result.add(item);
+            }
+        }
+
+        Comparator<FileInfo> comparator;
+        switch (sortMode) {
+            case 1:
+                comparator = Comparator.comparingLong(FileInfo::getSize).reversed();
+                break;
+            case 2:
+                comparator = Comparator.comparingLong(FileInfo::getLastModified).reversed();
+                break;
+            default:
+                comparator = Comparator.comparing(FileInfo::getDisplayName, String.CASE_INSENSITIVE_ORDER);
+                break;
+        }
+        Collections.sort(result, comparator);
+        return result;
+    }
+
+    @Override
+    public boolean exists(@NonNull String path) throws FileSystemException {
+        return new File(normalizePath(path)).exists();
+    }
+
+    @Override
+    public boolean isDirectory(@NonNull String path) throws FileSystemException {
+        return new File(normalizePath(path)).isDirectory();
+    }
+
+    @Override
+    public void createDirectory(@NonNull String directoryPath, boolean createParents)
+            throws FileSystemException {
+        File dir = new File(normalizePath(directoryPath));
+        boolean ok;
+        if (createParents) {
+            ok = dir.mkdirs();
+        } else {
+            ok = dir.mkdir();
+        }
+        if (!ok && !dir.exists()) {
+            throw new FileSystemException("Unable to create directory: " + directoryPath, null,
+                    FileSystemException.ErrorCode.PERMISSION_DENIED, directoryPath, locationId);
+        }
+    }
+
+    @Override
+    public void delete(@NonNull String path) throws FileSystemException {
+        LocalFileInfo info = new LocalFileInfo(this, new File(normalizePath(path)));
+        info.delete();
+    }
+
+    @Override
+    public void deleteRecursive(@NonNull String path, @Nullable ProgressListener progress)
+            throws FileSystemException {
+        File target = new File(normalizePath(path));
+        recursiveDelete(target, progress);
+    }
+
+    @Override
+    public void copy(@NonNull String sourcePath,
+                     @NonNull String destinationPath,
+                     boolean overwrite,
+                     @Nullable ProgressListener progress) throws FileSystemException {
+        File source = new File(normalizePath(sourcePath));
+        File destination = new File(normalizePath(destinationPath));
+        if (!source.exists()) {
+            throw new FileSystemException("Source does not exist: " + sourcePath, null,
+                    FileSystemException.ErrorCode.NOT_FOUND, sourcePath, locationId);
+        }
+        if (destination.exists() && !overwrite) {
+            throw new FileSystemException("Destination already exists: " + destinationPath, null,
+                    FileSystemException.ErrorCode.ALREADY_EXISTS, destinationPath, locationId);
+        }
+        try {
+            java.nio.file.Files.copy(source.toPath(), destination.toPath(),
+                    overwrite ? java.nio.file.StandardCopyOption.REPLACE_EXISTING : java.nio.file.StandardCopyOption.COPY_ATTRIBUTES);
+        } catch (Exception e) {
+            throw new FileSystemException("Unable to copy file: " + sourcePath, e,
+                    FileSystemException.ErrorCode.PERMISSION_DENIED, sourcePath, locationId);
+        }
+    }
+
+    @Override
+    public void move(@NonNull String sourcePath, @NonNull String destinationPath)
+            throws FileSystemException {
+        File source = new File(normalizePath(sourcePath));
+        File destination = new File(normalizePath(destinationPath));
+        if (!source.exists()) {
+            throw new FileSystemException("Source does not exist: " + sourcePath, null,
+                    FileSystemException.ErrorCode.NOT_FOUND, sourcePath, locationId);
+        }
+        if (!source.renameTo(destination)) {
+            throw new FileSystemException("Unable to move file: " + sourcePath, null,
+                    FileSystemException.ErrorCode.UNKNOWN, sourcePath, locationId);
+        }
+    }
+
+    @Override
+    public void copyDirectory(@NonNull String sourcePath,
+                              @NonNull String destinationPath,
+                              boolean overwrite,
+                              @Nullable ProgressListener progress) throws FileSystemException {
+        File source = new File(normalizePath(sourcePath));
+        File destination = new File(normalizePath(destinationPath));
+        if (!source.exists() || !source.isDirectory()) {
+            throw new FileSystemException("Source directory not found: " + sourcePath, null,
+                    FileSystemException.ErrorCode.NOT_FOUND, sourcePath, locationId);
+        }
+        if (destination.exists() && !overwrite) {
+            throw new FileSystemException("Destination already exists: " + destinationPath, null,
+                    FileSystemException.ErrorCode.ALREADY_EXISTS, destinationPath, locationId);
+        }
+        if (!destination.exists()) {
+            createDirectory(destination.getAbsolutePath(), true);
+        }
+        File[] children = source.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            File target = new File(destination, child.getName());
+            if (child.isDirectory()) {
+                copyDirectory(child.getAbsolutePath(), target.getAbsolutePath(), true, progress);
+            } else {
+                copy(child.getAbsolutePath(), target.getAbsolutePath(), true, progress);
+            }
+        }
+    }
+
+    @Override
+    public void setLastModified(@NonNull String path, long timestamp) throws FileSystemException {
+        File file = new File(normalizePath(path));
+        if (!file.exists()) {
+            throw new FileSystemException("File not found: " + path, null,
+                    FileSystemException.ErrorCode.NOT_FOUND, path, locationId);
+        }
+        if (!file.setLastModified(timestamp)) {
+            throw new FileSystemException("Unable to set modified time: " + path, null,
+                    FileSystemException.ErrorCode.NOT_SUPPORTED, path, locationId);
+        }
+    }
+
+    @Override
+    @NonNull
+    public String getParentPath(@NonNull String path) {
+        File file = new File(normalizePath(path));
+        File parent = file.getParentFile();
+        return parent == null ? rootPath : parent.getAbsolutePath();
+    }
+
+    @Override
+    @NonNull
+    public String getFileName(@NonNull String path) {
+        File file = new File(normalizePath(path));
+        return file.getName();
+    }
+
+    @Override
+    @NonNull
+    public String getFileExtension(@NonNull String path) {
+        String name = getFileName(path);
+        int idx = name.lastIndexOf('.');
+        if (idx < 0 || idx == name.length() - 1) return "";
+        return name.substring(idx + 1);
+    }
+
+    @Override
+    @NonNull
+    public String joinPath(@NonNull String parent, @NonNull String child) {
+        return new File(parent, child).getAbsolutePath();
+    }
+
+    @Override
+    @NonNull
+    public String normalizePath(@NonNull String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return rootPath;
+        }
+        File file = new File(path);
+        return file.getAbsolutePath();
+    }
+
+    @Override
+    public void connect() throws FileSystemException {
+        connected = true;
+    }
+
+    @Override
+    public void disconnect() {
+        connected = false;
+    }
+
+    @Override
+    public void reconnect() throws FileSystemException {
+        connect();
+    }
+
+    @Override
+    public void close() {
+        disconnect();
+    }
+
+    @Override
+    public boolean supports(@NonNull FileSystemOperation operation) {
+        switch (operation) {
+            case READ:
+            case WRITE:
+            case DELETE:
+            case RENAME:
+            case CREATE_DIRECTORY:
+            case LIST_DIRECTORY:
+            case GET_METADATA:
+            case SET_METADATA:
+            case COPY:
+            case SEARCH:
+            case GET_QUOTA:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    @Nullable
+    public StorageQuota getQuota() {
+        try {
+            File root = new File(rootPath);
+            if (!root.exists()) return null;
+            StatFs statFs = new StatFs(root.getAbsolutePath());
+            long totalBytes;
+            long freeBytes;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                totalBytes = statFs.getBlockCountLong() * statFs.getBlockSizeLong();
+                freeBytes = statFs.getAvailableBlocksLong() * statFs.getBlockSizeLong();
+            } else {
+                totalBytes = (long) statFs.getBlockCount() * statFs.getBlockSize();
+                freeBytes = (long) statFs.getAvailableBlocks() * statFs.getBlockSize();
+            }
+            return new StorageQuota(totalBytes, totalBytes - freeBytes, freeBytes);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    @Nullable
+    public AuthenticationInfo getAuthenticationInfo() {
+        return null;
+    }
+
+    @Override
+    @NonNull
+    public List<FileInfo> search(@NonNull String rootPath,
+                                 @NonNull String pattern,
+                                 int maxResults,
+                                 @Nullable ProgressListener progress) throws FileSystemException {
+        File root = new File(normalizePath(rootPath));
+        if (!root.exists()) {
+            throw new FileSystemException("Root not found: " + rootPath, null,
+                    FileSystemException.ErrorCode.NOT_FOUND, rootPath, locationId);
+        }
+        List<FileInfo> matches = new ArrayList<>();
+        walkSearch(root, pattern, maxResults, matches, progress);
+        return matches;
+    }
+
+    @Override
+    public void clearCache() {
+        // Local FS has no cache state to clear.
+    }
+
+    public String getRootPathValue() {
+        return rootPath;
+    }
+
+    public String getDisplayNameValue() {
+        return displayName;
+    }
+
+    /**
+     * Determine the MIME type of a file for UI display.
+     */
+    public String getFileType(@NonNull File file) {
+        if (file.isDirectory()) return "application/x-directory";
+        String name = file.getName();
+        int extIndex = name.lastIndexOf('.') + 1;
+        if (extIndex <= 0 || extIndex >= name.length()) {
+            return "application/octet-stream";
+        }
+        String ext = name.substring(extIndex).toLowerCase();
+        switch (ext) {
+            case "txt":
+                return "text/plain";
+            case "png":
+            case "jpg":
+            case "jpeg":
+            case "gif":
+            case "webp":
+                return "image/" + ext;
+            case "mp3":
+            case "wav":
+                return "audio/mpeg";
+            case "mp4":
+            case "mkv":
+                return "video/mp4";
+            case "pdf":
+                return "application/pdf";
+            case "zip":
+            case "rar":
+            case "7z":
+                return "application/zip";
+            default:
+                return "application/octet-stream";
+        }
+    }
+
+    private void recursiveDelete(@NonNull File file, @Nullable ProgressListener progress) throws FileSystemException {
+        if (!file.exists()) {
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    recursiveDelete(child, progress);
+                }
+            }
+        }
+        if (!file.delete()) {
+            throw new FileSystemException("Unable to delete: " + file.getAbsolutePath(), null,
+                    FileSystemException.ErrorCode.PERMISSION_DENIED, file.getAbsolutePath(), locationId);
+        }
+    }
+
+    private void walkSearch(@NonNull File root,
+                           @NonNull String pattern,
+                           int maxResults,
+                           @NonNull List<FileInfo> matches,
+                           @Nullable ProgressListener progress) {
+        if (matches.size() >= maxResults) return;
+        File[] children = root.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (matches.size() >= maxResults) return;
+            String name = child.getName();
+            if (name.matches(pattern) || child.getAbsolutePath().contains(pattern)) {
+                matches.add(new LocalFileInfo(this, child));
+            }
+            if (child.isDirectory()) {
+                walkSearch(child, pattern, maxResults, matches, progress);
+            }
+        }
+    }
+}
