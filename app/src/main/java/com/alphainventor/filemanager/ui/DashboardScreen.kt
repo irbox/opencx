@@ -1,7 +1,6 @@
 package com.alphainventor.filemanager.ui
 
 import android.os.Environment
-import android.os.StatFs
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Article
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,17 +39,17 @@ fun DashboardScreen(
     onOpenNetwork: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
+    val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     var menuExpanded by remember { mutableStateOf(false) }
 
-    val stat = remember {
-        val path = Environment.getExternalStorageDirectory()
-        val stat = StatFs(path.path)
-        val total = stat.totalBytes
-        val free = stat.availableBytes
-        val used = total - free
-        val pct = if (total > 0) (used.toFloat() / total.toFloat()) else 0f
-        Triple(used / (1024L * 1024 * 1024), total / (1024L * 1024 * 1024), pct)
+    // Live Real Storage Stats
+    var storageStats by remember { mutableStateOf(RealStorageEngine.getDeviceStorage()) }
+    var categorySizes by remember { mutableStateOf(mapOf("images" to 0L, "audio" to 0L, "videos" to 0L)) }
+
+    LaunchedEffect(Unit) {
+        storageStats = RealStorageEngine.getDeviceStorage()
+        categorySizes = RealStorageEngine.queryCategorySizes(context)
     }
 
     Scaffold(
@@ -59,7 +58,9 @@ fun DashboardScreen(
                 title = { Text("Cx File Explorer", color = Color.White, fontWeight = FontWeight.SemiBold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CxCyan),
                 actions = {
-                    IconButton(onClick = { /* Refresh */ }) {
+                    IconButton(onClick = {
+                        storageStats = RealStorageEngine.getDeviceStorage()
+                    }) {
                         Icon(Icons.Rounded.Refresh, contentDescription = "Refresh", tint = Color.White)
                     }
                     IconButton(onClick = { menuExpanded = true }) {
@@ -71,11 +72,6 @@ fun DashboardScreen(
                             leadingIcon = { Icon(Icons.Rounded.Settings, contentDescription = null) },
                             onClick = { menuExpanded = false; onOpenSettings() }
                         )
-                        DropdownMenuItem(
-                            text = { Text("Refresh") },
-                            leadingIcon = { Icon(Icons.Rounded.Refresh, contentDescription = null) },
-                            onClick = { menuExpanded = false }
-                        )
                     }
                 }
             )
@@ -86,7 +82,7 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // --- Cyan Curved Header (Screenshots 1-3) ---
+            // --- Live Donut Gauge & Real Sizes (Screenshots 1-3) ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,24 +109,30 @@ fun DashboardScreen(
                             drawArc(
                                 color = Color.White,
                                 startAngle = -90f,
-                                sweepAngle = 360f * stat.third,
+                                sweepAngle = 360f * storageStats.percent,
                                 useCenter = false,
                                 style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                             )
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("${(stat.third * 100).toInt()}%", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("${(storageStats.percent * 100).toInt()}%", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
                             Text("Main storage", fontSize = 11.sp, color = Color.White.copy(alpha = 0.9f))
-                            Text("${stat.first} GB / ${stat.second} GB", fontSize = 10.sp, color = Color.White.copy(alpha = 0.9f))
+                            Text(
+                                "${RealStorageEngine.formatSize(storageStats.usedBytes)} / ${RealStorageEngine.formatSize(storageStats.totalBytes)}",
+                                fontSize = 10.sp,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
                         }
                     }
 
-                    // Quick Stats & Clean Button
+                    // Real Category Sizes Query
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Column {
-                            Text("Images", color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp)
-                            Text("Audio", color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp)
-                            Text("Videos", color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp)
+                            Text("Images: ${RealStorageEngine.formatSize(categorySizes["images"] ?: 0L)}", color = Color.White.copy(alpha = 0.9f), fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Audio: ${RealStorageEngine.formatSize(categorySizes["audio"] ?: 0L)}", color = Color.White.copy(alpha = 0.9f), fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Videos: ${RealStorageEngine.formatSize(categorySizes["videos"] ?: 0L)}", color = Color.White.copy(alpha = 0.9f), fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.height(14.dp))
                         Button(
@@ -138,15 +140,15 @@ fun DashboardScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.25f)),
                             shape = RoundedCornerShape(4.dp),
                             border = BorderStroke(1.dp, Color.White),
-                            contentPadding = PaddingValues(horizontal = 28.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 6.dp)
                         ) {
-                            Text("CLEAN", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Text("ANALYZE", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                         }
                     }
                 }
             }
 
-            // --- 3 Tabs: LOCAL | LIBRARY | NETWORK (Screenshots 1, 4, 5) ---
+            // --- Real Action Tabs ---
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.White,
@@ -159,27 +161,52 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Circular Buttons Grid ---
+            // --- Connected Button Navigation ---
             val localButtons = listOf(
-                ActionButton("Main storage", Icons.Rounded.Smartphone, Color(0xFFF57C00)) { onNavigateFolder(Environment.getExternalStorageDirectory()) },
-                ActionButton("SD card", Icons.Rounded.SdCard, Color(0xFF3F51B5)) { onNavigateFolder(Environment.getExternalStorageDirectory()) },
-                ActionButton("System", Icons.Rounded.Memory, Color(0xFF37474F)) { onNavigateFolder(File("/sys")) },
-                ActionButton("Downloads", Icons.Rounded.Download, Color(0xFF00ACC1)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)) },
-                ActionButton("Apps", Icons.Rounded.Android, Color(0xFF7CB342)) { /* Apps */ },
-                ActionButton("Recycle Bin", Icons.Rounded.Delete, Color(0xFF757575)) { /* Recycle */ }
+                ActionButton("Main storage", Icons.Rounded.Smartphone, Color(0xFFF57C00)) {
+                    onNavigateFolder(Environment.getExternalStorageDirectory())
+                },
+                ActionButton("SD card", Icons.Rounded.SdCard, Color(0xFF3F51B5)) {
+                    val ext = File("/storage").listFiles()?.firstOrNull { it.name != "emulated" && it.name != "self" }
+                    onNavigateFolder(ext ?: Environment.getExternalStorageDirectory())
+                },
+                ActionButton("System", Icons.Rounded.Memory, Color(0xFF37474F)) {
+                    onNavigateFolder(File("/"))
+                },
+                ActionButton("Downloads", Icons.Rounded.Download, Color(0xFF00ACC1)) {
+                    onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+                },
+                ActionButton("Apps", Icons.Rounded.Android, Color(0xFF7CB342)) {
+                    onNavigateFolder(File(Environment.getExternalStorageDirectory(), "Android/data"))
+                },
+                ActionButton("Recycle Bin", Icons.Rounded.Delete, Color(0xFF757575)) {
+                    val trash = File(Environment.getExternalStorageDirectory(), ".opencx_trash")
+                    if (!trash.exists()) trash.mkdirs()
+                    onNavigateFolder(trash)
+                }
             )
 
             val libraryButtons = listOf(
-                ActionButton("Images", Icons.Rounded.Image, Color(0xFF7E57C2)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)) },
-                ActionButton("Audio", Icons.Rounded.MusicNote, Color(0xFF00897B)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)) },
-                ActionButton("Videos", Icons.Rounded.PlayCircle, Color(0xFFE53935)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)) },
-                ActionButton("Documents", Icons.AutoMirrored.Rounded.Article, Color(0xFF1E88E5)) { onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)) },
-                ActionButton("New files", Icons.Rounded.AccessTime, Color(0xFF546E7A)) { /* New Files */ }
+                ActionButton("Images", Icons.Rounded.Image, Color(0xFF7E57C2)) {
+                    onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                },
+                ActionButton("Audio", Icons.Rounded.MusicNote, Color(0xFF00897B)) {
+                    onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC))
+                },
+                ActionButton("Videos", Icons.Rounded.PlayCircle, Color(0xFFE53935)) {
+                    onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES))
+                },
+                ActionButton("Documents", Icons.AutoMirrored.Rounded.Article, Color(0xFF1E88E5)) {
+                    onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS))
+                },
+                ActionButton("New files", Icons.Rounded.AccessTime, Color(0xFF546E7A)) {
+                    onNavigateFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+                }
             )
 
             val networkButtons = listOf(
                 ActionButton("Access from net...", Icons.Rounded.Devices, Color(0xFFFBC02D)) { onOpenNetwork() },
-                ActionButton("New location", Icons.Rounded.Add, Color(0xFF5C6BC0)) { /* Add Remote */ }
+                ActionButton("New location", Icons.Rounded.Add, Color(0xFF5C6BC0)) { /* New location modal */ }
             )
 
             val currentButtons = when (selectedTab) {
