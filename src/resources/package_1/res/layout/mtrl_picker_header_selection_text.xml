@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='utf-8' ?>
-<TextView android:gravity="bottom|center|start"
-          android:id="@id/mtrl_picker_header_selection_text"
-          android:layout_width="fill_parent"
-          android:layout_height="wrap_content"
-          explorer:autoSizeTextType="uniform"
-          explorer:firstBaselineToTopHeight="@dimen/mtrl_calendar_selection_text_baseline_to_top"
-          explorer:lineHeight="@dimen/mtrl_calendar_header_selection_line_height"
-          style="?attr/materialCalendarHeaderSelection" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:explorer="http://schemas.android.com/apk/res-auto" />
